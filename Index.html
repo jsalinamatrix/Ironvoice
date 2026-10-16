@@ -1,0 +1,640 @@
+			<!DOCTYPE html>
+		<html lang="en">
+	<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#202820">
+<title>IronVoice - Training Log</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 16px;
+    background: #f1f1eb;
+    color: #202820;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+header {
+    background: #202820;
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 30px;
+    letter-spacing: 3px;
+}
+
+header p {
+    margin: 7px 0 0;
+    color: #c9d1c6;
+    font-size: 13px;
+    letter-spacing: 1px;
+}
+
+h2 {
+    font-size: 20px;
+    margin: 16px 0 12px;
+}
+
+.calendar-box,
+.workout-box {
+    background: white;
+    padding: 14px;
+    border-radius: 12px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 6px #0000000d;
+}
+
+.month-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.month-bar button {
+    width: 42px;
+    padding: 10px;
+    font-size: 20px;
+}
+
+#monthLabel {
+    font-size: 18px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
+}
+
+.weekday {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 7px 0;
+}
+
+.day {
+    min-width: 0;
+    min-height: 42px;
+    padding: 7px 0;
+    border: 1px solid #e0e2dc;
+    border-radius: 7px;
+    background: white;
+    color: #202820;
+    font-size: 14px;
+    position: relative;
+}
+
+.day.has-workout {
+    background: #e1eadc;
+    border-color: #7d9b72;
+    font-weight: 700;
+}
+
+.day.selected {
+    background: #202820;
+    color: white;
+    border-color: #202820;
+}
+
+.day.today:not(.selected) {
+    outline: 2px solid #a5b69c;
+}
+
+.day.has-workout::after {
+    content: "";
+    display: block;
+    width: 5px;
+    height: 5px;
+    background: #537b45;
+    border-radius: 50%;
+    margin: 3px auto 0;
+}
+
+.day.selected.has-workout::after {
+    background: white;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 13px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.month-bar button {
+    background: #e8eae4;
+    color: #202820;
+}
+
+.exercise {
+    border: 1px solid #dfe2da;
+    border-radius: 10px;
+    padding: 12px;
+    margin: 14px 0;
+    background: #fafaf7;
+}
+
+.exercise-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.exercise-heading strong {
+    font-size: 14px;
+}
+
+.remove-exercise {
+    background: #f4e6e2;
+    color: #8b3326;
+    padding: 7px 9px;
+    font-size: 12px;
+}
+
+label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: #50584d;
+}
+
+input {
+    width: 100%;
+    min-width: 0;
+    padding: 11px 9px;
+    border: 1px solid #d1d5cc;
+    border-radius: 7px;
+    font-size: 16px;
+    background: white;
+    color: #202820;
+}
+
+.lift-name {
+    margin-bottom: 12px;
+}
+
+.set-heading,
+.set-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+}
+
+.set-heading {
+    margin-bottom: 6px;
+}
+
+.set-heading span {
+    font-size: 12px;
+    color: #50584d;
+    font-weight: 700;
+}
+
+.set-row {
+    margin-bottom: 8px;
+}
+
+.set-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.add-set {
+    background: #e8eae4;
+    color: #202820;
+}
+
+.remove-set {
+    background: #f4e6e2;
+    color: #8b3326;
+    padding: 8px;
+}
+
+.main-button {
+    width: 100%;
+    margin-top: 10px;
+    background: #202820;
+    color: white;
+    padding: 15px;
+    font-size: 16px;
+}
+
+.secondary-button {
+    width: 100%;
+    margin-top: 10px;
+    background: #e8eae4;
+    color: #202820;
+    padding: 13px;
+}
+
+#workoutDate {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+#status {
+    text-align: center;
+    font-size: 13px;
+    color: #537b45;
+    min-height: 18px;
+    margin-top: 10px;
+}
+
+.empty-message {
+    text-align: center;
+    padding: 15px 5px;
+    color: #687064;
+    font-size: 14px;
+}
+
+footer {
+    text-align: center;
+    color: #777e72;
+    font-size: 12px;
+    padding: 8px 0 20px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>IRONVOICE</h1>
+    <p>YOUR TRAINING NOTEBOOK</p>
+</header>
+
+<section class="calendar-box">
+    <div class="month-bar">
+        <button id="prevMonth" aria-label="Previous month">&lt;</button>
+        <div id="monthLabel"></div>
+        <button id="nextMonth" aria-label="Next month">&gt;</button>
+    </div>
+
+    <div class="calendar" id="calendar"></div>
+</section>
+
+<section class="workout-box">
+    <div id="workoutDate"></div>
+    <div id="workoutContent"></div>
+
+    <button class="secondary-button" id="addExercise">
+        + ADD EXERCISE
+    </button>
+
+    <button class="main-button" id="saveWorkout">
+        SAVE WORKOUT
+    </button>
+
+    <div id="status" aria-live="polite"></div>
+</section>
+
+<footer>
+    KEEP SHOWING UP. KEEP GETTING STRONGER.
+</footer>
+
+<script>
+const STORAGE_KEY = "ironvoice_workouts_v1";
+
+let workouts = {};
+
+try {
+    workouts = JSON.parse(
+        localStorage.getItem(STORAGE_KEY) || "{}"
+    ) || {};
+} catch (error) {
+    workouts = {};
+}
+
+const today = new Date();
+
+let selectedDate = dateKey(today);
+let calendarMonth = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    1
+);
+
+let exercises = [];
+
+function dateKey(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+}
+
+function displayDate(key) {
+    const parts = key.split("-").map(Number);
+    const date = new Date(parts[0], parts[1] - 1, parts[2]);
+
+    return date.toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric"
+    });
+}
+
+function showStatus(message) {
+    document.getElementById("status").textContent = message;
+}
+
+function renderCalendar() {
+    const calendar = document.getElementById("calendar");
+    calendar.innerHTML = "";
+
+    document.getElementById("monthLabel").textContent =
+        calendarMonth.toLocaleDateString("en-US", {
+            month: "long",
+            year: "numeric"
+        });
+
+    ["M", "T", "W", "T", "F", "S", "S"].forEach(day => {
+        const heading = document.createElement("div");
+        heading.className = "weekday";
+        heading.textContent = day;
+        calendar.appendChild(heading);
+    });
+
+    const year = calendarMonth.getFullYear();
+    const month = calendarMonth.getMonth();
+
+    const firstDay = new Date(year, month, 1);
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // Monday-first calendar
+    const offset = (firstDay.getDay() + 6) % 7;
+
+    for (let i = 0; i < offset; i++) {
+        calendar.appendChild(document.createElement("div"));
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month, day);
+        const key = dateKey(date);
+
+        const button = document.createElement("button");
+        button.className = "day";
+        button.textContent = day;
+
+        if (key === selectedDate) {
+            button.classList.add("selected");
+        }
+
+        if (key === dateKey(today)) {
+            button.classList.add("today");
+        }
+
+        if (workouts[key]) {
+            button.classList.add("has-workout");
+        }
+
+        button.addEventListener("click", () => {
+            selectedDate = key;
+            loadWorkout();
+            renderCalendar();
+        });
+
+        calendar.appendChild(button);
+    }
+}
+
+function loadWorkout() {
+    const saved = workouts[selectedDate];
+
+    exercises = saved
+        ? JSON.parse(JSON.stringify(saved.exercises || []))
+        : [];
+
+    document.getElementById("workoutDate").textContent =
+        displayDate(selectedDate);
+
+    showStatus("");
+    renderExercises();
+}
+
+function renderExercises() {
+    const content = document.getElementById("workoutContent");
+    content.innerHTML = "";
+
+    if (exercises.length === 0) {
+        const message = document.createElement("div");
+        message.className = "empty-message";
+        message.textContent =
+            "No exercises yet. Tap + ADD EXERCISE to begin.";
+        content.appendChild(message);
+    }
+
+    exercises.forEach((exercise, exerciseIndex) => {
+        const card = document.createElement("div");
+        card.className = "exercise";
+
+        const heading = document.createElement("div");
+        heading.className = "exercise-heading";
+
+        const title = document.createElement("strong");
+        title.textContent = "EXERCISE " + (exerciseIndex + 1);
+
+        const removeExercise = document.createElement("button");
+        removeExercise.className = "remove-exercise";
+        removeExercise.textContent = "Remove";
+
+        removeExercise.addEventListener("click", () => {
+            exercises.splice(exerciseIndex, 1);
+            renderExercises();
+            showStatus("");
+        });
+
+        heading.append(title, removeExercise);
+        card.appendChild(heading);
+
+        const nameLabel = document.createElement("label");
+        nameLabel.textContent = "LIFT NAME";
+
+        const nameInput = document.createElement("input");
+        nameInput.className = "lift-name";
+        nameInput.type = "text";
+        nameInput.placeholder = "e.g. Barbell Squat";
+        nameInput.value = exercise.name || "";
+
+        nameInput.addEventListener("input", event => {
+            exercise.name = event.target.value;
+        });
+
+        card.append(nameLabel, nameInput);
+
+        const setHeading = document.createElement("div");
+        setHeading.className = "set-heading";
+
+        const weightHeading = document.createElement("span");
+        weightHeading.textContent = "WEIGHT (LB)";
+
+        const repsHeading = document.createElement("span");
+        repsHeading.textContent = "REPS";
+
+        setHeading.append(weightHeading, repsHeading);
+        card.appendChild(setHeading);
+
+        exercise.sets.forEach((set, setIndex) => {
+            const row = document.createElement("div");
+            row.className = "set-row";
+
+            const weight = document.createElement("input");
+            weight.type = "number";
+            weight.inputMode = "decimal";
+            weight.placeholder = "Weight";
+            weight.setAttribute("aria-label", "Set " + (setIndex + 1) + " weight");
+            weight.value = set.weight ?? "";
+
+            weight.addEventListener("input", event => {
+                set.weight = event.target.value;
+            });
+
+            const reps = document.createElement("input");
+            reps.type = "number";
+            reps.inputMode = "numeric";
+            reps.placeholder = "Reps";
+            reps.setAttribute("aria-label", "Set " + (setIndex + 1) + " reps");
+            reps.value = set.reps ?? "";
+
+            reps.addEventListener("input", event => {
+                set.reps = event.target.value;
+            });
+
+            row.append(weight, reps);
+            card.appendChild(row);
+        });
+
+        const actions = document.createElement("div");
+        actions.className = "set-actions";
+
+        const addSet = document.createElement("button");
+        addSet.className = "add-set";
+        addSet.textContent = "+ ADD SET";
+
+        addSet.addEventListener("click", () => {
+            exercise.sets.push({ weight: "", reps: "" });
+            renderExercises();
+            showStatus("");
+        });
+
+        actions.appendChild(addSet);
+
+        if (exercise.sets.length > 1) {
+            const removeSet = document.createElement("button");
+            removeSet.className = "remove-set";
+            removeSet.textContent = "Remove Last Set";
+
+            removeSet.addEventListener("click", () => {
+                exercise.sets.pop();
+                renderExercises();
+                showStatus("");
+            });
+
+            actions.appendChild(removeSet);
+        }
+
+        card.appendChild(actions);
+        content.appendChild(card);
+    });
+}
+
+function addExercise() {
+    exercises.push({
+        name: "",
+        sets: [{ weight: "", reps: "" }]
+    });
+
+    renderExercises();
+    showStatus("");
+
+    const fields = document.querySelectorAll(".lift-name");
+    fields[fields.length - 1]?.focus();
+}
+
+function saveWorkout() {
+    const hasContent = exercises.some(exercise =>
+        exercise.name.trim() ||
+        exercise.sets.some(set =>
+            String(set.weight).trim() ||
+            String(set.reps).trim()
+        )
+    );
+
+    if (!hasContent) {
+        delete workouts[selectedDate];
+    } else {
+        workouts[selectedDate] = {
+            exercises: JSON.parse(JSON.stringify(exercises))
+        };
+    }
+
+    try {
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(workouts)
+        );
+
+        renderCalendar();
+        showStatus("Workout saved successfully!");
+    } catch (error) {
+        showStatus("Could not save. Device storage may be full.");
+    }
+}
+
+document.getElementById("prevMonth").addEventListener("click", () => {
+    calendarMonth = new Date(
+        calendarMonth.getFullYear(),
+        calendarMonth.getMonth() - 1,
+        1
+    );
+    renderCalendar();
+});
+
+document.getElementById("nextMonth").addEventListener("click", () => {
+    calendarMonth = new Date(
+        calendarMonth.getFullYear(),
+        calendarMonth.getMonth() + 1,
+        1
+    );
+    renderCalendar();
+});
+
+document.getElementById("addExercise").addEventListener(
+    "click",
+    addExercise
+);
+
+document.getElementById("saveWorkout").addEventListener(
+    "click",
+    saveWorkout
+);
+
+renderCalendar();
+loadWorkout();
+</script>
+
+</body>
+</html>
