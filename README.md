@@ -306,7 +306,13 @@ footer {
     <button class="main-button" id="saveWorkout">
         SAVE WORKOUT
     </button>
+<button class="secondary-button" id="restoreWorkout">
 
+    RESTORE WORKOUTS
+
+</button>
+
+<input type="file" id="restore
     <div id="status" aria-live="polite"></div>
 </section>
 
@@ -627,7 +633,106 @@ document.getElementById("addExercise").addEventListener(
     addExercise
 );
 
-document.getElementById("saveWorkout").addEventListener(
+async function backupWorkouts() {
+    const status = document.getElementById("status");
+
+    try {
+        const backup = {
+            app: "IronVoice",
+            version: 1,
+            exportedAt: new Date().toISOString(),
+            workouts: workouts
+        };
+
+        const filename = "IronVoice-backup-" +
+            new Date().toISOString().slice(0, 10) + ".json";
+
+        const file = new File(
+            [JSON.stringify(backup, null, 2)],
+            filename,
+            { type: "application/json" }
+        );
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                files: [file],
+                title: "IronVoice Workout Backup"
+            });
+            status.textContent = "Backup ready. Save it in Files.";
+        } else {
+            const url = URL.createObjectURL(file);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            setTimeout(() => URL.revokeObjectURL(url), 2000);
+            status.textContent = "Backup downloaded.";
+        }
+    } catch (error) {
+        if (error.name !== "AbortError") {
+            status.textContent = "Backup failed. Please try again.";
+        }
+    }
+}
+
+function restoreWorkouts() {
+    document.getElementById("restoreFile").click();
+}
+
+document.getElementById("backupWorkout").addEventListener(
+    "click", backupWorkouts
+);
+
+document.getElementById("restoreWorkout").addEventListener(
+    "click", restoreWorkouts
+);
+
+document.getElementById("restoreFile").addEventListener(
+    "change", async function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        try {
+            const data = JSON.parse(await file.text());
+            const restored = data.workouts || data;
+
+            if (
+                !restored ||
+                typeof restored !== "object" ||
+                Array.isArray(restored)
+            ) {
+                throw new Error("Invalid backup");
+            }
+
+            if (!confirm(
+                "Restore this backup? It will replace all workouts currently saved in IronVoice."
+            )) {
+                return;
+            }
+
+            workouts = restored;
+            localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(workouts)
+            );
+
+            renderCalendar();
+            loadWorkout();
+
+            document.getElementById("status").textContent =
+                "Workouts restored successfully!";
+        } catch (error) {
+            alert(
+                "Could not restore this file. Please select a valid IronVoice backup."
+            );
+        } finally {
+            event.target.value = "";
+        }
+    }
+);document.getElementById("saveWorkout").addEventListener(
     "click",
     saveWorkout
 );
